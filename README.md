@@ -34,7 +34,6 @@ Usage
 
 1. Clone the repository and copy dtoogle to a location in your `$PATH`
 2. Open the file in a text editor, look for the `choose_profile()` function and change the profiles to your needs or add new ones.  I included my profiles for home, work and projector.  In order to get the names of the displays, connect them and run `dtoogle -m`. Look for the strings that say "connected". Add the name of your internal display to `INTERN` and all names of your external displays to `EXTERN[0]` up to `EXTERN[n]`. Note: The order of the extries is important, i.e. entry number n is either left of right (depending on the option) of number (n+1)!
-
 ```bash
 function choose_profile()
 {
@@ -72,4 +71,4 @@ GNU GPL.
 Author
 ------
 
-Matthias Schmidt <xhr giessen.ccc.de>
+Matthias Schmidt (xhr giessen.ccc.de)
