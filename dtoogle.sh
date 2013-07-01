@@ -60,7 +60,7 @@ function choose_profile()
     fi
   # Internal on and extend screen on all displays by default
   else
-    build_xrandr_string "--auto" "--auto"
+    build_xrandr_string "--auto" "--auto" "--right-of"
   fi
 }
 
@@ -103,7 +103,7 @@ function run_xrandr()
 
 function usage()
 {
-  echo "`basename $0` [-ceix] [-mnv] [-lr] -p profile"
+  echo "`basename $0` [-ceix] [-hmnv] [-lr] -p profile"
   echo
   echo "Display Options:"
   echo " -c           Clone screen on all displays"
@@ -113,6 +113,7 @@ function usage()
   pg "[default]"
   echo
   echo "General Options:"
+  echo " -h           Show this help"
   echo " -m           Show all available modes"
   echo " -n           Dry run. Do not run xrand.  Implies -v"
   echo " -v           Be more verbose"
@@ -164,7 +165,7 @@ RIGHTOF=1
 # Additional options for xrandr
 XRANDROPTS=""
 
-while getopts "ciemnrlp:vx" opt; do
+while getopts "ciehmnrlp:vx" opt; do
   case $opt in
     c)
       CFLAG=1
@@ -196,6 +197,10 @@ while getopts "ciemnrlp:vx" opt; do
       ;;
     p)
       [ ! -z "$OPTARG" ] && PROFILE=$OPTARG
+      ;;
+    h)
+      usage
+      exit 1
       ;;
     *)
       usage
