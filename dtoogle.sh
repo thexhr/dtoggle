@@ -6,13 +6,6 @@
 #
 # License GNU GPL
 
-# -----------------------------------------------------------------------
-# Add your own additional options for xrandr here
-# -----------------------------------------------------------------------
-XRANDROPTS="--dryrun"
-# -----------------------------------------------------------------------
-
-
 function choose_profile()
 {
   local PROFILE=$1
@@ -41,11 +34,12 @@ function choose_profile()
     #   INTERN="LVDS1"
     #   EXTERN[0]="VGA1"
     #   ...
+    #   EXTERN[n]="VGAn"
     #   ;;
     # -----------------------------------------------------------------------
     *)
       usage
-      echo "ERROR: Profile not found"
+      pr "Profile $PROFILE not found"
       exit 1
       ;;
   esac
@@ -55,11 +49,15 @@ function choose_profile()
     build_xrandr_string "--auto" "--off"
   # Clone screen on all displays
   elif [ $CFLAG -eq 1 ]; then
-    RES=`xrandr -q | egrep "^ *[0-9]*x[0-9]*" | awk {'print $1'} | sort -g -r | uniq -d | head -1`
+    RES=`xrandr -q | egrep "^ *[0-9]*x[0-9]*" | awk {'print $1'} | sort | uniq -d | head -1`
     build_xrandr_string "--mode $RES" "--same-as $INTERN"
   # Turn internal display off
   elif [ $EFLAG -eq 1 ]; then
-    build_xrandr_string "--off" "--auto" "--left-of"
+    if [ $RIGHTOF -eq 1 ]; then
+      build_xrandr_string "--off" "--auto" "--right-of"
+    else
+      build_xrandr_string "--off" "--auto" "--left-of"
+    fi
   # Internal on and extend screen on all displays by default
   else
     build_xrandr_string "--auto" "--auto"
@@ -78,9 +76,8 @@ function build_xrandr_string()
   i=0
   for d in ${EXTERN[*]}; do
     if [ $CFLAG -eq 1 ]; then
-      CMDEXT="${CMDEXT} --output ${DOEXTERN} --mode ${RES}"
+      CMDEXT="${CMDEXT} --output $d ${DOEXTERN} --mode ${RES}"
     elif [ ! -z $POSITION ]; then
-      # xrandr --output $INTERN --auto --output $EXTERN --auto --right-of $INTERN
       if [ $i -eq 0 ]; then
         CMDEXT="${CMDEXT} --output $d ${DOEXTERN} ${POSITION} $INTERN"
       else
@@ -93,27 +90,56 @@ function build_xrandr_string()
   done
 
   CMD="$CMD $CMDEXT"
-  echo $CMD
+  [ $VERBOSE -eq 1 ] && {
+    echo "I'll run the following command:" 
+    pg "$CMD"
+  }
 }
 
 function run_xrandr()
 {
-  exec "$CMD XRANDROPTS"
+  echo "$CMD $XRANDROPTS" | sh
 }
 
 function usage()
 {
-  echo "$0 [-ceim] [-p profile]"
+  echo "`basename $0` [-ceix] [-mnv] [-lr] -p profile"
   echo
+  echo "Display Options:"
   echo " -c           Clone screen on all displays"
   echo " -e           Enable external display(s) and disable internal"
   echo " -i           Enable only the internal display"
-  echo " -m           Show all available modes"
+  echo -n " -x           Extend screen to all displays "
+  pg "[default]"
   echo
+  echo "General Options:"
+  echo " -m           Show all available modes"
+  echo " -n           Dry run. Do not run xrand.  Implies -v"
+  echo " -v           Be more verbose"
+  echo
+  echo "Position:"
+  echo " -l           Display n is left of display (n+1)"
+  echo -n " -r           Display n is right of display (n+1) "
+  pg "[default]"
+  echo
+  echo "Profile:"
   echo " -p profile   Enable the specified profile"
   echo
-  echo "DEFAULT: Extend screen to all displays"
-  echo
+}
+
+RED='\e[0;31m'
+GREEN='\e[0;32m'
+BLUE='\e[0;34m'
+NC="\e[0;37;40m"
+
+function pg()
+{
+  echo -e "${GREEN}${1}${NC}"
+}
+
+function pr()
+{
+  echo -e "${RED}${1}${NC}"
 }
 
 CMD=
@@ -131,8 +157,14 @@ CFLAG=0
 EFLAG=0
 # Enable only the internal display
 IFLAG=0
+# Verbosity
+VERBOSE=0
+# Display n is right of display (n+1) [default]
+RIGHTOF=1
+# Additional options for xrandr
+XRANDROPTS=""
 
-while getopts "ciemp:" opt; do
+while getopts "ciemnrlp:vx" opt; do
   case $opt in
     c)
       CFLAG=1
@@ -143,14 +175,31 @@ while getopts "ciemp:" opt; do
     e)
       EFLAG=1
       ;;
+    v)
+      VERBOSE=1
+      ;;
+    n)
+      XRANDROPTS="--dryrun"
+      VERBOSE=1
+      ;;
+    r)
+      RIGHTOF=1
+      ;;
+    l)
+      RIGHTOF=0
+      ;;
     m)
       exec xrandr -q
+      ;;
+    x)
+      # Do nothing here since its the default
       ;;
     p)
       [ ! -z "$OPTARG" ] && PROFILE=$OPTARG
       ;;
     *)
       usage
+      pr "Option not found"
       exit 1
       ;;
   esac
@@ -158,7 +207,7 @@ done
 
 if [ $((CFLAG + $IFLAG + $EFLAG)) -gt 1 ]; then
   usage
-  echo "Please specify either -c or -e or -i"
+  pr "Please specify either -c or -e or -i"
   exit 1
 fi
 
