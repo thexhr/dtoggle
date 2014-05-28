@@ -19,8 +19,8 @@ function choose_profile()
     # Work profile: Internal off, both external displays on
     work)
       INTERN="LVDS1"
-      EXTERN[0]="HDMI3"
-      EXTERN[1]="HDMI2"
+      EXTERN[1]="HDMI3"
+      EXTERN[0]="HDMI2"
       ;;
     # Projector profile: Internal on, external VGA extended
     vga)
@@ -106,7 +106,7 @@ function usage()
   echo "`basename $0` [-ceix] [-hmnv] [-lr] -p profile"
   echo
   echo "Display Options:"
-  echo " -c           Clone screen on all displays"
+  echo " -c           Mirror screen on all displays"
   echo " -e           Enable external display(s) and disable internal"
   echo " -i           Enable only the internal display"
   echo -n " -x           Extend screen to all displays "
@@ -190,7 +190,14 @@ while getopts "ciehmnrlp:vx" opt; do
       RIGHTOF=0
       ;;
     m)
-      exec xrandr -q
+	# From ArchLinux wiki
+	  connectedOutputs=$(xrandr | grep " connected" | sed -e "s/\([A-Z0-9]\+\) connected.*/\1/")
+	  pg "Connected Displays"
+	  echo -n "  "
+	  echo $connectedOutputs
+	  pg "Available Modes"
+	  echo -n "  "
+	  exec xrandr -q
       ;;
     x)
       # Do nothing here since its the default
