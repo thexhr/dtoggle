@@ -10,39 +10,62 @@ function choose_profile()
 {
   local PROFILE=$1
 
-  case "$PROFILE" in
-    # Home profile: Internal on, external extended
-    home)
-      INTERN="LVDS1"
-      EXTERN[0]="HDMI1"
-      ;;
-    # Work profile: Internal off, both external displays on
-    work)
-      INTERN="LVDS1"
-      EXTERN[1]="HDMI3"
-      EXTERN[0]="HDMI2"
-      ;;
-    # Projector profile: Internal on, external VGA extended
-    vga)
-      INTERN="LVDS1"
-      EXTERN[0]="VGA1"
-      ;;
-    # -----------------------------------------------------------------------
-    # Add your own profiles here.
-    # -----------------------------------------------------------------------
-    # name)
-    #   INTERN="LVDS1"
-    #   EXTERN[0]="VGA1"
-    #   ...
-    #   EXTERN[n]="VGAn"
-    #   ;;
-    # -----------------------------------------------------------------------
-    *)
-      usage
-      pr "Profile $PROFILE not found"
-      exit 1
-      ;;
-  esac
+  # Use classic profile mode with -p
+  if [ ${NFLAG} -eq 0 ]; then
+    case "$PROFILE" in
+      # Home profile: Internal on, external extended
+      home)
+        INTERN="LVDS1"
+        EXTERN[0]="HDMI1"
+        ;;
+      # Work profile: Internal off, both external displays on
+      work)
+        INTERN="LVDS1"
+        EXTERN[1]="HDMI3"
+        EXTERN[0]="HDMI2"
+        ;;
+      # Projector profile: Internal on, external VGA extended
+      vga)
+        INTERN="LVDS1"
+        EXTERN[0]="VGA1"
+        ;;
+      # -----------------------------------------------------------------------
+      # Add your own profiles here.
+      # -----------------------------------------------------------------------
+      # name)
+      #   INTERN="LVDS1"
+      #   EXTERN[0]="VGA1"
+      #   ...
+      #   EXTERN[n]="VGAn"
+      #   ;;
+      # -----------------------------------------------------------------------
+      *)
+        usage
+        pr "Profile $PROFILE not found"
+        exit 1
+        ;;
+    esac
+  # No profiles, use the connected displays instead
+  else
+    # Convert string with connected displays to array
+    local DARRAY=( ${CONNDIS} )
+    # Assume that the first display is the internal one
+    INTERN=${DARRAY[0]}
+    i=0
+    for d in "${DARRAY[@]:1}"; do
+      EXTERN[$i]=$d
+      i=$(($i + 1))
+    done
+
+    [ $VERBOSE -eq 1 ] && {
+      echo "Internal Display"
+      echo -n "  "
+      pg "${INTERN}"
+      echo "External Display(s)"
+      echo -n "  "
+      pg ${EXTERN[@]}
+    }
+  fi
 
   # Set options deliberatly if toogle mode is on
   if [ ${TFLAG} -eq 1 ]; then
@@ -156,6 +179,7 @@ function usage()
   echo " -c           Mirror screen on all displays"
   echo " -e           Enable external display(s) and disable internal"
   echo " -i           Enable only the internal display"
+  echo " -N           Do not use any profiles.  Work with connected displays"
   echo -n " -x           Extend screen to all displays "
   pg "[default]"
   echo
@@ -206,6 +230,8 @@ CFLAG=0
 EFLAG=0
 # Enable only the internal display
 IFLAG=0
+# Do not use profiles
+NFLAG=0
 # Toggle different modes
 TFLAG=0
 # Verbosity
@@ -220,8 +246,10 @@ DTSTATE=$HOME/.dtoogle
 DTCONF=$HOME/.dtoogle.conf
 # Default status
 STATE=0
+# Connected displays. Stolen from ArchLinux wiki
+CONNDIS=$(xrandr | grep " connected" | sed -e "s/\([A-Z0-9]\+\) connected.*/\1/")
 
-while getopts "ciehmnrlp:vxt" opt; do
+while getopts "ciehmnNrlp:vxt" opt; do
   case $opt in
     c)
       CFLAG=1
@@ -231,6 +259,9 @@ while getopts "ciehmnrlp:vxt" opt; do
       ;;
     e)
       EFLAG=1
+      ;;
+    N)
+      NFLAG=1
       ;;
     t)
       TFLAG=1
@@ -249,11 +280,9 @@ while getopts "ciehmnrlp:vxt" opt; do
       RIGHTOF=0
       ;;
     m)
-	# From ArchLinux wiki
-	  connectedOutputs=$(xrandr | grep " connected" | sed -e "s/\([A-Z0-9]\+\) connected.*/\1/")
 	  pg "Connected Displays"
 	  echo -n "  "
-	  echo $connectedOutputs
+	  echo $CONNDIS
 	  pg "Available Modes"
 	  echo -n "  "
 	  exec xrandr -q
