@@ -241,9 +241,9 @@ RIGHTOF=1
 # Additional options for xrandr
 XRANDROPTS=""
 # dtoggle state file
-DTSTATE=$HOME/.dtoogle
+DTSTATE=$HOME/.dtoggle
 # dtoggle state file
-DTCONF=$HOME/.dtoogle.conf
+DTCONF=$HOME/.dtoggle.conf
 # Default status
 STATE=0
 # Connected displays. Stolen from ArchLinux wiki
