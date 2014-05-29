@@ -313,7 +313,6 @@ fi
 
 read_config
 
-exit
 if [ ${TFLAG} -eq 1 ]; then
   get_last_option
   toggle_option
