@@ -1,13 +1,13 @@
 dtoggle
 =======
 
-Small bash script that uses xrandr to configure internal/external displays.  I use it here with Arch Linux and i3 whenever I connect one or more external displays2
+Small bash script that uses xrandr to configure internal/external displays.  I use it here with Arch Linux and i3 whenever I connect one or more external displays.
 
 Command Line Options
 --------------------
 
 ```
-dtoogle.sh [-ceix] [-hmnv] [-lr] -p profile
+dtoogle [-ceix] [-hmntv] [-lr] -p profile
 
 Display Options:
  -c           Clone screen on all displays
@@ -16,9 +16,10 @@ Display Options:
  -x           Extend screen to all displays [default]
 
 General Options:
- -h 		  Show this help
+ -h           Show this help
  -m           Show all available modes
  -n           Dry run. Do not run xrand.  Implies -v
+ -t           Toggle different options"
  -v           Be more verbose
 
 Position:

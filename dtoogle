@@ -2,9 +2,27 @@
 
 # Quick-n-dirty script to turn external/internal displays on/off with xrandr
 #
-# 2013 by Matthias Schmidt <xhr giessen.ccc.de>
+# 2013-14 by Matthias Schmidt <xhr giessen.ccc.de>
 #
 # License GNU GPL
+
+function get_last_option()
+{
+  # Check if dtoggle saved the last state
+  if [ -f ${DTCONF} ]; then
+    . ${DTCONF}
+  fi
+}
+
+function write_last_option()
+{
+  echo "STATE=${STATE}" > ${DTCONF}
+}
+
+function toggle_option()
+{
+  STATE=$(((${STATE} + 1) % 4))
+}
 
 function choose_profile()
 {
@@ -43,6 +61,28 @@ function choose_profile()
       exit 1
       ;;
   esac
+
+  # Set options deliberatly if toogle mode is on
+  if [ ${TFLAG} -eq 1 ]; then
+    # 0 = extend
+    # 1 = mirror 
+    # 2 = internal only
+    # 3 = external only
+    case "${STATE}" in
+      0)
+        # Do nothing here
+        ;;
+      1)
+        CFLAG=1
+        ;;
+      2)
+        IFLAG=1
+        ;;
+      3)
+        EFLAG=1
+        ;;
+    esac
+  fi
 
   # Only enable the internal display
   if [ $IFLAG -eq 1 ]; then
@@ -103,7 +143,7 @@ function run_xrandr()
 
 function usage()
 {
-  echo "`basename $0` [-ceix] [-hmnv] [-lr] -p profile"
+  echo "`basename $0` [-ceix] [-hmntv] [-lr] -p profile"
   echo
   echo "Display Options:"
   echo " -c           Mirror screen on all displays"
@@ -116,6 +156,7 @@ function usage()
   echo " -h           Show this help"
   echo " -m           Show all available modes"
   echo " -n           Dry run. Do not run xrand.  Implies -v"
+  echo " -t           Toggle different options"
   echo " -v           Be more verbose"
   echo
   echo "Position:"
@@ -158,14 +199,20 @@ CFLAG=0
 EFLAG=0
 # Enable only the internal display
 IFLAG=0
+# Toggle different modes
+TFLAG=0
 # Verbosity
 VERBOSE=0
 # Display n is right of display (n+1) [default]
 RIGHTOF=1
 # Additional options for xrandr
 XRANDROPTS=""
+# dtoggle state file
+DTCONF=$HOME/.dtoogle
+# Default status
+STATE=0
 
-while getopts "ciehmnrlp:vx" opt; do
+while getopts "ciehmnrlp:vxt" opt; do
   case $opt in
     c)
       CFLAG=1
@@ -175,6 +222,9 @@ while getopts "ciehmnrlp:vx" opt; do
       ;;
     e)
       EFLAG=1
+      ;;
+    t)
+      TFLAG=1
       ;;
     v)
       VERBOSE=1
@@ -221,6 +271,12 @@ if [ $((CFLAG + $IFLAG + $EFLAG)) -gt 1 ]; then
   usage
   pr "Please specify either -c or -e or -i"
   exit 1
+fi
+
+if [ ${TFLAG} -eq 1 ]; then
+  get_last_option
+  toggle_option
+  write_last_option
 fi
 
 choose_profile $PROFILE
