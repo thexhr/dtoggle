@@ -173,7 +173,7 @@ function toggle_option()
 
 function usage()
 {
-  echo "`basename $0` [-ceix] [-hmntv] [-lr] -p profile"
+  echo "`basename $0` [-ceix] [-hmntv] [-lr] [-N|-p profile]"
   echo
   echo "Display Options:"
   echo " -c           Mirror screen on all displays"
