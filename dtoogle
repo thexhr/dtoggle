@@ -6,24 +6,6 @@
 #
 # License GNU GPL
 
-function get_last_option()
-{
-  # Check if dtoggle saved the last state
-  if [ -f ${DTCONF} ]; then
-    . ${DTCONF}
-  fi
-}
-
-function write_last_option()
-{
-  echo "STATE=${STATE}" > ${DTCONF}
-}
-
-function toggle_option()
-{
-  STATE=$(((${STATE} + 1) % 4))
-}
-
 function choose_profile()
 {
   local PROFILE=$1
@@ -141,6 +123,31 @@ function run_xrandr()
   echo "$CMD $XRANDROPTS" | sh
 }
 
+function read_config()
+{
+  if [ -f ${DTCONF} ]; then
+    . ${DTCONF}
+  fi
+}
+
+function get_last_option()
+{
+  # Check if dtoggle saved the last state
+  if [ -f ${DTSTATE} ]; then
+    . ${DTSTATE}
+  fi
+}
+
+function write_last_option()
+{
+  echo "STATE=${STATE}" > ${DTSTATE}
+}
+
+function toggle_option()
+{
+  STATE=$(((${STATE} + 1) % 4))
+}
+
 function usage()
 {
   echo "`basename $0` [-ceix] [-hmntv] [-lr] -p profile"
@@ -208,7 +215,9 @@ RIGHTOF=1
 # Additional options for xrandr
 XRANDROPTS=""
 # dtoggle state file
-DTCONF=$HOME/.dtoogle
+DTSTATE=$HOME/.dtoogle
+# dtoggle state file
+DTCONF=$HOME/.dtoogle.conf
 # Default status
 STATE=0
 
@@ -273,6 +282,9 @@ if [ $((CFLAG + $IFLAG + $EFLAG)) -gt 1 ]; then
   exit 1
 fi
 
+read_config
+
+exit
 if [ ${TFLAG} -eq 1 ]; then
   get_last_option
   toggle_option

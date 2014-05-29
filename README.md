@@ -1,12 +1,22 @@
 dtoggle
 =======
 
-Small bash script that uses xrandr to configure internal/external displays.  I use it here with Arch Linux and i3 whenever I connect one or more external displays.
+Small bash script that uses `xrandr` to configure internal/external displays.  I use it here with Arch Linux and i3 whenever I connect one or more external displays.
 
-I use the toggle option with the XF86Display key (Fn + F7) on my Thinkpad:
+I use the toggle option with the `XF86Display` key (Fn + F7) on my Thinkpad:
 
 ```
 bindsym XF86Display exec "~/Documents/bin/dtoogle -p home -t"
+```
+
+Config File
+-----------
+
+dtoogle can read the to be used profile from a config file in `$HOME/.dtoggle.conf`.  If the config file is not present you have to specify the profile using the -p option.  The file looks as follows:
+
+```
+# Set your desired profile here
+PROFILE=home
 ```
 
 Command Line Options
