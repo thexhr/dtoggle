@@ -11,7 +11,7 @@ function choose_profile()
   local PROFILE=$1
 
   # Use classic profile mode with -p
-  if [ ${NFLAG} -eq 0 ]; then
+  if [ -n "${PROFILE}" ]; then
     case "$PROFILE" in
       # Home profile: Internal on, external extended
       home)
@@ -173,13 +173,12 @@ function toggle_option()
 
 function usage()
 {
-  echo "`basename $0` [-ceix] [-hmntv] [-lr] [-N|-p profile]"
+  echo "`basename $0` [-ceix] [-hmntv] [-lr] [-p profile]"
   echo
   echo "Display Options:"
   echo " -c           Mirror screen on all displays"
   echo " -e           Enable external display(s) and disable internal"
   echo " -i           Enable only the internal display"
-  echo " -N           Do not use any profiles.  Work with connected displays"
   echo -n " -x           Extend screen to all displays "
   pg "[default]"
   echo
@@ -230,8 +229,6 @@ CFLAG=0
 EFLAG=0
 # Enable only the internal display
 IFLAG=0
-# Do not use profiles
-NFLAG=0
 # Toggle different modes
 TFLAG=0
 # Verbosity
@@ -249,7 +246,7 @@ STATE=0
 # Connected displays. Stolen from ArchLinux wiki
 CONNDIS=$(xrandr | grep " connected" | sed -e "s/\([A-Z0-9]\+\) connected.*/\1/")
 
-while getopts "ciehmnNrlp:vxt" opt; do
+while getopts "ciehmnrlp:vxt" opt; do
   case $opt in
     c)
       CFLAG=1
@@ -259,9 +256,6 @@ while getopts "ciehmnNrlp:vxt" opt; do
       ;;
     e)
       EFLAG=1
-      ;;
-    N)
-      NFLAG=1
       ;;
     t)
       TFLAG=1
