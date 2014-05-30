@@ -1,27 +1,32 @@
-dtoggle
-=======
+# dtoggle
 
 Small bash script that uses `xrandr` to configure internal/external displays.  I use it here with Arch Linux and i3 whenever I connect one or more external displays.
 
 I use the toggle option with the `XF86Display` key (Fn + F7) on my Thinkpad:
 
 ```
-bindsym XF86Display exec "~/Documents/bin/dtoggle -p home -t"
+bindsym XF86Display exec "~/Documents/bin/dtoggle -t"
 ```
 
-Usage Scenarios
----------------
+## Usage Scenarios
 
 ### Connected to a projector
 
-You connect your laptop to a projector and you do not have (the time to cerate) a profile. Just use the -N -t combination and dtoggle toggles between all displays options on all connected displays.
+You connect your laptop to a projector and you do not have (the time to cerate) a profile. Just use the -t option to switch between all displays options on all connected displays.
+
+```
+dtoggle -t
+```
 
 ### Switch between the laptop display and a docking station with connected displays
 
-Add a profile named *foo* and use -p foo once you dock in or out
+Add a profile named *foo* and use -p foo once you dock in or out.
 
-Config File
------------
+```
+dtoggle -p foo -e
+```
+
+## Config File
 
 dtoggle can read the to be used profile from a config file in `$HOME/.dtoggle.conf`.  If the config file is not present you have to specify the profile using the -p option.  The file looks as follows:
 
@@ -30,8 +35,7 @@ dtoggle can read the to be used profile from a config file in `$HOME/.dtoggle.co
 PROFILE=home
 ```
 
-Command Line Options
---------------------
+## Command Line Options
 
 ```
 dtoggle [-ceix] [-hmntv] [-lr] -p profile
@@ -40,7 +44,6 @@ Display Options:
  -c           Clone screen on all displays
  -e           Enable external display(s) and disable internal
  -i           Enable only the internal display
- -N           Do not use any profiles.  Work with connected displays
  -x           Extend screen to all displays [default]
 
 General Options:
@@ -58,12 +61,10 @@ Profile:
  -p profile   Enable the specified profile
 ```
 
-Usage
------
+## Add a new Profile
 
 1. Clone the repository and copy dtoggle to a location in your `$PATH`
-2. Use the -N option and stop reading OR
-3. Open the file in a text editor, look for the `choose_profile()` function and change the profiles to your needs or add new ones.  I included my profiles for home, work and projector.  In order to get the names of the displays, connect them and run `dtoggle -m`. Look for the strings that say "connected". Add the name of your internal display to `INTERN` and all names of your external displays to `EXTERN[0]` up to `EXTERN[n]`. Note: The order of the entries is important, i.e. entry number n is either left of right (depending on the option) of number (n+1)!
+2. Open the file in a text editor, look for the `choose_profile()` function and change the profiles to your needs or add new ones.  I included my profiles for home, work and projector.  In order to get the names of the displays, connect them and run `dtoggle -m`. Look for the strings that say "connected". Add the name of your internal display to `INTERN` and all names of your external displays to `EXTERN[0]` up to `EXTERN[n]`. Note: The order of the entries is important, i.e. entry number n is either left of right (depending on the option) of number (n+1)!
 
 ```bash
 function choose_profile()
@@ -90,17 +91,14 @@ function choose_profile()
 
 3. Check the command line options with `dtoggle -h` and enjoy.
 
-Bugs
-----
+## Bugs
 
 None.  Nevertheless, I you find something annoying, send me an email.
 
-License
--------
+## License
 
 GNU GPL.
 
-Author
-------
+## Author
 
 Matthias Schmidt (xhr giessen.ccc.de)
