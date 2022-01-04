@@ -1,8 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Quick-n-dirty script to turn external/internal displays on/off with xrandr
 #
-# 2013-14 by Matthias Schmidt <xhr giessen.ccc.de>
+# 2013-14,2020,2022 by Matthias Schmidt <xhr giessen.ccc.de>
 #
 # License GNU GPL
 
@@ -143,7 +143,7 @@ function build_xrandr_string()
 
 function run_xrandr()
 {
-  echo "$CMD $XRANDROPTS" | sh
+  echo "$CMD $XRANDROPTS" | bash
 }
 
 function read_config()
@@ -244,7 +244,7 @@ DTCONF=$HOME/.dtoggle.conf
 # Default status
 STATE=0
 # Connected displays. Stolen from ArchLinux wiki
-CONNDIS=$(xrandr | grep " connected" | sed -e "s/\([A-Z0-9]\+\) connected.*/\1/")
+CONNDIS=$(xrandr | grep " connected" | awk '{ printf("%s ", $1)  }')
 
 while getopts "ciehmnrlp:vxt" opt; do
   case $opt in
