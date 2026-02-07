@@ -60,10 +60,10 @@ function choose_profile()
     [ $VERBOSE -eq 1 ] && {
       echo "Internal Display"
       echo -n "  "
-      pg "${INTERN}"
+      echo "${INTERN}"
       echo "External Display(s)"
       echo -n "  "
-      pg ${EXTERN[@]}
+      echo ${EXTERN[@]}
     }
   fi
 
@@ -137,7 +137,7 @@ function build_xrandr_string()
   CMD="$CMD $CMDEXT"
   [ $VERBOSE -eq 1 ] && {
     echo "I'll run the following command:" 
-    pg "$CMD"
+    echo "$CMD"
   }
 }
 
@@ -180,7 +180,7 @@ function usage()
   echo " -e           Enable external display(s) and disable internal"
   echo " -i           Enable only the internal display"
   echo -n " -x           Extend screen to all displays "
-  pg "[default]"
+  echo "[default]"
   echo
   echo "General Options:"
   echo " -h           Show this help"
@@ -192,26 +192,11 @@ function usage()
   echo "Position:"
   echo " -l           Display n is left of display (n+1)"
   echo -n " -r           Display n is right of display (n+1) "
-  pg "[default]"
+  echo "[default]"
   echo
   echo "Profile:"
   echo " -p profile   Enable the specified profile"
   echo
-}
-
-RED='\e[0;31m'
-GREEN='\e[0;32m'
-BLUE='\e[0;34m'
-NC="\e[0;0;0m"
-
-function pg()
-{
-  echo -e "${GREEN}${1}${NC}"
-}
-
-function pr()
-{
-  echo -e "${RED}${1}${NC}"
 }
 
 CMD=
@@ -274,10 +259,10 @@ while getopts "ciehmnrlp:vxt" opt; do
       RIGHTOF=0
       ;;
     m)
-	  pg "Connected Displays"
+	  echo "Connected Displays"
 	  echo -n "  "
 	  echo $CONNDIS
-	  pg "Available Modes"
+	  echo "Available Modes"
 	  echo -n "  "
 	  exec xrandr -q
       ;;
