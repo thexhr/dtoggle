@@ -136,7 +136,7 @@ function build_xrandr_string()
 
   CMD="$CMD $CMDEXT"
   [ $VERBOSE -eq 1 ] && {
-    echo "I'll run the following command:" 
+    echo "I'll run the following command:"
     echo "$CMD"
   }
 }
